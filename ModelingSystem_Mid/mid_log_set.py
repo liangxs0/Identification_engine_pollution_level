@@ -8,7 +8,7 @@ date:2020
 
 import logging
 from logging import handlers
- 
+from mid_config_operator import config
  
 class Logger(object):
     level_relations = {
@@ -19,8 +19,9 @@ class Logger(object):
         "critical": logging.CRITICAL
     }
  
-    def __init__(self, filename="mid_log.log", level="info", when="D", backupCount=3, fmt="%(asctime)s - %(pathname)s[line:%(lineno)d] - %"
-                                                                                              "(levelname)s: %(message)s"):
+    def __init__(self, filename, level="info", when="D", backupCount=3, fmt="%(asctime)s - %(pathname)s[line:%(lineno)d] - %"
+                                                                                              "(levelname)s: %(message)s"):                                                                            
+    
         format_str = logging.Formatter(fmt)
         streamHandler = logging.StreamHandler()
         streamHandler.setFormatter(format_str)
@@ -30,4 +31,9 @@ class Logger(object):
         self.logger.setLevel(self.level_relations.get(level))
         self.logger.addHandler(streamHandler)
         self.logger.addHandler(fileHandler)
-log = Logger(level="debug").logger
+
+log = Logger(level="debug",filename=config.config["path"]["log_file_path"]).logger
+
+
+if __name__=="__main__":
+    log.error("test")

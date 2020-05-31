@@ -8,8 +8,8 @@ version:V2
 import os,shutil,sys,zipfile,io
 import re
 from mid_config_operator import config
-from mid_database_operate import dbase
 from mid_log_set import log
+from mid_database_operate import dbase
 import base64
 
 
@@ -84,16 +84,48 @@ class DirOperator(object):
     def dataset_path_get(self):
         try:
             self.cur_path = os.path.dirname(os.path.realpath(__file__))
+            self.cur_path = os.path.join(self.cur_path,config.config["path"]["datasetdir_path"].replace("./",""))
+        
             return [os.path.join(self.cur_path,dir) for dir in os.listdir(config.config["path"]["datasetdir_path"]) if not ".zip" in dir]  
         except Exception as e:
             log.error("dataset path get fail {}".format(e))
             return False 
+    def create_model_save_dir(self,path):
+
+        if not os.path.exists(path):
+            try:
+                os.makedirs(path)
+                return True
+            except Exception as e:
+                log.error("Model file save file folder creation failed {}".format(e))
+                return False
+        else:
+            print("Folder already exists")
+            return True
+       
+    def mid_merge_dataset(self,path_list): 
+        try: 
+            self.create_dir(config.config["path"]["all_dataset_dir_path"])
+            for dateset_path in path_list:
+                for tag in os.listdir(dateset_path):
+                    print(tag)
+                    self.create_dir(os.path.join(config.config["path"]["all_dataset_dir_path"],tag))
+                    for image_file in os.listdir(os.path.join(dateset_path,tag)):
+                        print(os.path.join(dateset_path,tag,image_file))
+                        shutil.copyfile(os.path.join(dateset_path,tag,image_file),os.path.join(config.config["path"]["all_dataset_dir_path"],tag,image_file))
+            return True
+        except Exception as e:
+            log.error("dataset merge error {}".format(e))
+            return False
+          
 
 dir_operator = DirOperator()
 
 
 if __name__ == "__main__":
-    dir_operator.unzip_all()
-    print(dir_operator.dataset_path_get())
+    # dir_operator.unzip_all()
+    # print(dir_operator.dataset_path_get())
+    # print(dir_operator.create_model_save_dir("/home/liangxs/LXS_TESXT/ModelingSystem_Mid/ModelFile/s"))
+    dir_operator.mid_merge_dataset(dir_operator.dataset_path_get())
    
     

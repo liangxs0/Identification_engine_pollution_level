@@ -8,6 +8,7 @@ date:2020
 import time
 from  mid_database_operate import dbase
 import os
+from mid_ds_dataset import *
 #测试数据
 data_re = {
         "training_time":time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
@@ -46,8 +47,9 @@ class Calculation(object):
         data_re["model_version"] = self.version_get(data["train_model_id"],ver)
         data_re["training_model_id"] = data["train_model_id"]
         data_re["dataset_list"] = str(data["train_dataset_id"]).replace("[","").replace("]","")
+
         if not task_type is 2:
-            data_re["model_fileaddr"] = "/{}/{}.h5".format(os.path.split(data["new_model_path"])[1],data["train_model_name"])
+            data_re["model_fileaddr"] = "/{}/{}.h5".format(os.path.split(data["new_model_path"])[1],data["train_model_name"])#存放得路径
         return data_re
     def version_get(self,model_id,version):
         res = dbase.model_info_get(model_id,version)

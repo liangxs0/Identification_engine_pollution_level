@@ -9,7 +9,9 @@ version:V1
 from mid_run import runing
 import time
 
+
 if __name__ == "__main__":
+    
     while True:
         runing.task_allocation_kazoo()
 

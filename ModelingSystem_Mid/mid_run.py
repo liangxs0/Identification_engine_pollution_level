@@ -60,7 +60,9 @@ class Master(object):
                         self.train_result_save_switch(self.t_data["task_type"],self.res,node)
                         print("end  task true{}".format(node))
                         dir_operator.clear(config.config["path"]["datasetdir_path"])
+                        dir_operator.clear(config.config["path"]["all_dataset_dir_path"])
                         dir_operator.create_dir(config.config["path"]["datasetdir_path"])
+                        dir_operator.create_dir(config.config["path"]["all_dataset_dir_path"])
                         self.update_status(self.t_data,4,self.user_node,nn,self.t_data["train_model_id"])
                         print("running end",True)
                         break
@@ -86,7 +88,8 @@ class Master(object):
         if not dir_operator.unzip_all():
             log.error("File unzip failed")
             return False
-        dataset_path = dir_operator.dataset_path_get()
+        # dataset_path = dir_operator.dataset_path_get()
+        dataset_path = config.config["path"]["all_datasetfiles"]
         if not dataset_path:
             log.error("File address acquisition failed")
             return False
@@ -100,6 +103,7 @@ class Master(object):
             self.parameter["model_version"] = self.parameter_model_version
             # self.parameter.update({"model_file_path":n_model_file_path[2].model_fileaddr})
             self.parameter["train_model_name"] = (self.parameter["train_model_name"] + "_{}".format(cal_result.version_get(self.parameter["train_model_id"],self.parameter["model_version"])))
+            dir_operator.create_model_save_dir("/{}/{}".format(os.path.split(self.parameter["new_model_path"])[1],self.parameter["train_model_name"]))
         elif self.parameter["task_type"] is 1:
             n_model_file_path = dbase.model_info_get(self.parameter["train_model_id"],self.parameter["model_version"])
             if n_model_file_path[2] is None:
@@ -107,6 +111,7 @@ class Master(object):
                 return False
             self.parameter.update({"model_file_path":n_model_file_path[1].model_fileaddr})
             self.parameter["train_model_name"] = self.parameter["train_model_name"] + "_{}".format(cal_result.version_get(self.parameter["train_model_id"],self.parameter["model_version"]))
+            dir_operator.create_model_save_dir("/{}/{}".format(os.path.split(self.parameter["new_model_path"])[1],self.parameter["train_model_name"]))
         elif self.parameter["task_type"] is 2:
             n_model_file_path = dbase.model_info_get(self.parameter["train_model_id"],self.parameter["model_version"])
             if n_model_file_path[2] is None:
@@ -171,13 +176,11 @@ class Master(object):
                 
             elif status is 4:
                 data["training_status"] = int(config.config["status"]["ASS_STATU_NO_END"])
-                
         else:
             return False
         kazoo_update.kazoo_info_update(config.config["kazoo"]["KAZOO_NODE"].format(user_node,node),data)
         dbase.updata_train_mdoel_status(model_id,data["training_status"])
         return data
-
 runing = Master()
 if __name__ == "__main__":
     queue_config = {
